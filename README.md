@@ -70,7 +70,7 @@ Chatty is a workspace-based communication platform where users can create worksp
 - As a workspace owner, I want to remove a member from the workspace so that I can control who has access to it.
 
 ## Database Design
-![alt text](diagram-export-8-6-2026-10_46_17-AM.png)
+![alt text](image.png)
 
 ## Routes
 
