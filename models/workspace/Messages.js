@@ -24,7 +24,7 @@ const workspaceMessages = new mongoose.Schema({
     deletedAt: {
         type: Date
     },
-    replyTo: [workspaceMessages]
+    //replyTo: [workspaceMessages]
 }, { timestamps: true })
 
 module.exports = workspaceMessages
