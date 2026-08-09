@@ -1,4 +1,5 @@
 const { R2 } = require('node-cloudflare-r2')
+const path = require('path')
 
 
 const r2 = new R2({
