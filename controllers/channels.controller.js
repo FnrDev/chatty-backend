@@ -1,6 +1,7 @@
 const Channel = require("../models/workspace/Channels")
 
 async function getAllChannels(req, res) {
+
    try {
      const getAllChannels = await Channel.find()
      return res.status(200).json(getAllChannels)
