@@ -11,6 +11,9 @@ const { createServer } = require('http')
 const authRoutes = require('./routes/auth.routes')
 const workspaceRoutes = require('./routes/workspace.routes')
 
+// Events Import
+const onMessageReceived = require('./events/onMessageReceived')
+
 
 // Middleware
 app.use(
@@ -31,11 +34,7 @@ const io = new Server(httpServer, {
 io.on('connection', (socket) => {
     console.log('User Connected', socket.id)
 
-    socket.on('message', (message) => {
-        console.log('Message', message)
-        
-        io.emit('message', message)
-    })
+    socket.on('message', onMessageReceived)
 
     socket.on('disconnect', () => {
         console.log('User Disconnected', socket.id)
