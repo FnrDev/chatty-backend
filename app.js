@@ -11,6 +11,7 @@ const connectToDB = require('./config/db.js')
 // Routes Import
 const authRoutes = require('./routes/auth.routes')
 const workspaceRoutes = require('./routes/workspace.routes')
+const channelsRoutes = require('./routes/channels.routes.js')
 const uploadRoutes = require('./routes/upload.routes.js')
 
 // Events Import
@@ -46,6 +47,7 @@ io.on('connection', (socket) => {
 // Routes
 app.use('/auth',authRoutes)
 app.use('/workspaces', workspaceRoutes)
+app.use('/channels', channelsRoutes)
 app.use('/upload', uploadRoutes)
 
 async function startServer() {
