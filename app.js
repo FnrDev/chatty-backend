@@ -6,6 +6,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 const { Server } = require('socket.io')
 const { createServer } = require('http')
+const connectToDB = require('./config/db.js')
 
 // Routes Import
 const authRoutes = require('./routes/auth.routes')
@@ -45,6 +46,12 @@ io.on('connection', (socket) => {
 app.use('/auth',authRoutes)
 app.use('/workspaces', workspaceRoutes)
 
-httpServer.listen(3000, () => {
-    console.log('App is running')
-})
+async function startServer() {
+    const PORT = process.env.PORT || 3000;
+    await connectToDB();
+
+    httpServer.listen(PORT, () => {
+        console.log(`App is running on port ${PORT}`);
+    });
+}
+startServer();
