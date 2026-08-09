@@ -16,7 +16,10 @@ async function listWorkspace(req, res) {
         return res.json(workspaces)
     } catch (error) {
         console.log(error)
-        return res.status(500).json({ message: "internal server error" })
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ message: error.message })
+        }
+        return res.status(500).json({ message: error.message })
     }
 }
 
@@ -52,7 +55,10 @@ async function createWorkspace(req, res) {
         return res.json(created)
     } catch (error) {
         console.log(error)
-        return res.status(500).json({ message: "internal server error" })
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ message: error.message })
+        }
+        return res.status(500).json({ message: error.message })
     }
 }
 
@@ -69,7 +75,10 @@ async function workspaceDetails(req, res) {
         return res.json(workspace)
     } catch (error) {
         console.log(error)
-        return res.status(500).json({ message: "internal server error" })
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ message: error.message })
+        }
+        return res.status(500).json({ message: error.message })
     }
 }
 
