@@ -11,6 +11,7 @@ const connectToDB = require('./config/db.js')
 // Routes Import
 const authRoutes = require('./routes/auth.routes')
 const workspaceRoutes = require('./routes/workspace.routes')
+const uploadRoutes = require('./routes/upload.routes.js')
 
 // Events Import
 const onMessageReceived = require('./events/onMessageReceived')
@@ -45,6 +46,7 @@ io.on('connection', (socket) => {
 // Routes
 app.use('/auth',authRoutes)
 app.use('/workspaces', workspaceRoutes)
+app.use('/upload', uploadRoutes)
 
 async function startServer() {
     const PORT = process.env.PORT || 3000;
