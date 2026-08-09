@@ -1,13 +1,15 @@
-const Workspace = require('../models/workspace/Workspace')
+const { Workspace, WorkspaceMember } = require('../models/workspace')
 
 const random6Char = () => Math.random().toString(36).substring(2, 8);
 
 async function listWorkspace(req, res) {
     try {
+        const memberships = await WorkspaceMember.find({ user: req.user._id }).select('workspace')
+
         const workspaces = await Workspace.find({
             $or: [
                 { owner: req.user._id },
-                { "members.user": req.user._id }
+                { _id: { $in: memberships.map((membership) => membership.workspace) } }
             ]
         })
 

@@ -1,12 +1,26 @@
 const mongoose = require('mongoose')
-const workspaceMessages = require('./Messages')
 
 const messagePinSchema = new mongoose.Schema({
-    message: workspaceMessages,
+    channel: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Channel",
+        required: true,
+        index: true
+    },
+    message: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Message",
+        required: true
+    },
     pinnedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }
 }, { timestamps: true })
 
-module.exports = messagePinSchema
+// a message can only be pinned once
+messagePinSchema.index({ message: 1 }, { unique: true })
+
+const MessagePin = mongoose.model('MessagePin', messagePinSchema)
+
+module.exports = MessagePin

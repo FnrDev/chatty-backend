@@ -1,6 +1,12 @@
 const mongoose = require('mongoose')
 
 const bookmarksSchema = new mongoose.Schema({
+    channel: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Channel",
+        required: true,
+        index: true
+    },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
@@ -19,4 +25,6 @@ const bookmarksSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
-module.exports = bookmarksSchema
+const Bookmark = mongoose.model('Bookmark', bookmarksSchema)
+
+module.exports = Bookmark
