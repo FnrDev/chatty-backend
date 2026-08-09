@@ -1,13 +1,15 @@
-const Workspace = require('../models/workspace/Workspace')
+const { Workspace, WorkspaceMember } = require('../models/workspace')
 
 const random6Char = () => Math.random().toString(36).substring(2, 8);
 
 async function listWorkspace(req, res) {
     try {
+        const memberships = await WorkspaceMember.find({ user: req.user._id }).select('workspace')
+
         const workspaces = await Workspace.find({
             $or: [
                 { owner: req.user._id },
-                { "members.user": req.user._id }
+                { _id: { $in: memberships.map((membership) => membership.workspace) } }
             ]
         })
 
@@ -32,6 +34,21 @@ async function createWorkspace(req, res) {
             code: random6Char().toUpperCase()
         })
 
+        try {
+            await WorkspaceMember.create({
+                workspace: created._id,
+                user: req.user._id,
+                role: 'owner',
+                status: 'active',
+                joinedAt: new Date()
+            })
+        } catch (error) {
+            // members live in their own collection now, so a failure here would
+            // leave behind a workspace that nobody is a member of
+            await Workspace.deleteOne({ _id: created._id })
+            throw error
+        }
+
         return res.json(created)
     } catch (error) {
         console.log(error)
@@ -41,7 +58,14 @@ async function createWorkspace(req, res) {
 
 async function workspaceDetails(req, res) {
     try {
-        const workspace = await Workspace.findById(req.params.id).populate('members').populate('channels')
+        const workspace = await Workspace.findById(req.params.id)
+            .populate({ path: 'members', populate: { path: 'user' } })
+            .populate('channels')
+
+        if (!workspace) {
+            return res.status(404).json({ message: "workspace not found" })
+        }
+
         return res.json(workspace)
     } catch (error) {
         console.log(error)

@@ -1,9 +1,12 @@
 const mongoose = require('mongoose')
-const workspaceMessages = require('./Messages')
-const bookmarksSchema = require('./Bookmarks')
-const messagePinSchema = require('./MessagePins')
 
 const workspaceChannels = new mongoose.Schema({
+    workspace: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Workspace",
+        required: true,
+        index: true
+    },
     name: {
         type: String,
         required: true,
@@ -16,10 +19,33 @@ const workspaceChannels = new mongoose.Schema({
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
-    },
-    messages: [workspaceMessages],
-    bookmarks: [bookmarksSchema],
-    pins: [messagePinSchema]
-}, { timestamps: true })
+    }
+}, {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+})
 
-module.exports = workspaceChannels // this will be embeddings schema in Workspace model
+// messages, bookmarks and pins live in their own collections and point back
+// at the channel, these virtuals keep .populate('messages') & co. working
+workspaceChannels.virtual('messages', {
+    ref: 'Message',
+    localField: '_id',
+    foreignField: 'channel'
+})
+
+workspaceChannels.virtual('bookmarks', {
+    ref: 'Bookmark',
+    localField: '_id',
+    foreignField: 'channel'
+})
+
+workspaceChannels.virtual('pins', {
+    ref: 'MessagePin',
+    localField: '_id',
+    foreignField: 'channel'
+})
+
+const Channel = mongoose.model('Channel', workspaceChannels)
+
+module.exports = Channel

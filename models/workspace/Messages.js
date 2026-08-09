@@ -1,7 +1,16 @@
 const mongoose = require('mongoose')
-const workspaceChannels = require('./Channels')
 
 const workspaceMessages = new mongoose.Schema({
+    channel: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Channel",
+        required: true,
+        index: true
+    },
+    author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
     textContent: {
         type: String
     },
@@ -24,7 +33,12 @@ const workspaceMessages = new mongoose.Schema({
     deletedAt: {
         type: Date
     },
-    //replyTo: [workspaceMessages]
+    replyTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Message"
+    }
 }, { timestamps: true })
 
-module.exports = workspaceMessages
+const Message = mongoose.model('Message', workspaceMessages)
+
+module.exports = Message
