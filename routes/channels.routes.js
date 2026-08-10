@@ -1,4 +1,4 @@
-const router = require('express').Router()
+const router = require('express').Router({ mergeParams: true })
 const verifyToken = require("../middleware/verifyToken")
 const channelsController = require("../controllers/channels.controller")
 

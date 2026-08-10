@@ -47,7 +47,7 @@ io.on('connection', (socket) => {
 // Routes
 app.use('/auth',authRoutes)
 app.use('/workspaces', workspaceRoutes)
-app.use('/channels', channelsRoutes)
+app.use('/workspace/:workspaceId/channels', channelsRoutes)
 app.use('/upload', uploadRoutes)
 
 async function startServer() {
