@@ -25,9 +25,11 @@ async function onMessageReceived(message) {
         workspace: workspaceId,
     })
 
-    const popluateAuthor = await Message.findById(createdMessage._id).populate('author')
+    await createdMessage.populate({
+        path: 'author',
+    })
 
-    getIO().emit('message_received', popluateAuthor)
+    getIO().emit('message_received', createdMessage)
 }
 
 module.exports = onMessageReceived
