@@ -10,5 +10,6 @@ router.post('/', verifyToken, channelsController.createChannel)
 router.get('/:channelId/messages', verifyToken, messageController.getChannelMessages)
 router.post('/:channelId/messages', verifyToken, messageController.createChannelMessage)
 router.patch('/:channelId/messages/:messageId', verifyToken, messageController.editChannelMessage)
+router.delete('/:channelId/messages/:messageId', verifyToken, messageController.deleteChannelMessage)
 
 module.exports = router

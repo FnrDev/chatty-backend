@@ -3,7 +3,10 @@ const { getIO } = require('../socket')
 
 async function getChannelMessages(req, res) {
     try {
-        const messages = await Message.find({ channel: req.params.channelId }).populate('author')
+        const messages = await Message.find({
+            channel: req.params.channelId,
+            deletedAt: null
+        }).populate('author')
         res.json(messages)
     } catch (error) {
         console.log(error)
@@ -46,7 +49,8 @@ async function editChannelMessage(req, res) {
             {
                 _id: req.params.messageId,
                 channel: req.params.channelId,
-                author: req.user._id
+                author: req.user._id,
+                deletedAt: null
             },
             {
                 textContent,
@@ -71,8 +75,45 @@ async function editChannelMessage(req, res) {
     }
 }
 
+async function deleteChannelMessage(req, res) {
+    try {
+        const deleted = await Message.findOneAndUpdate(
+            {
+                _id: req.params.messageId,
+                channel: req.params.channelId,
+                author: req.user._id,
+                deletedAt: null
+            },
+            {
+                deletedAt: new Date()
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        )
+
+        if (!deleted) {
+            return res.status(404).json({ message: "message not found" })
+        }
+
+        const deletedMessage = {
+            _id: deleted._id,
+            channel: deleted.channel
+        }
+
+        getIO().emit('message_deleted', deletedMessage)
+
+        return res.json(deletedMessage)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "internal server error" })
+    }
+}
+
 module.exports = {
     getChannelMessages,
     createChannelMessage,
-    editChannelMessage
+    editChannelMessage,
+    deleteChannelMessage
 }
