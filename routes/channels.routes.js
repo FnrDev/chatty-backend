@@ -13,6 +13,10 @@ router.post('/:channelId/messages', verifyToken, messageController.createChannel
 router.patch('/:channelId/messages/:messageId', verifyToken, messageController.editChannelMessage)
 router.delete('/:channelId/messages/:messageId', verifyToken, messageController.deleteChannelMessage)
 
+router.get('/:channelId/pins', verifyToken, messageController.listMessagePin)
+router.post('/:channelId/messages/:messageId/pin', verifyToken, messageController.createMessagePin)
+router.delete('/:channelId/messages/:messageId/pin', verifyToken, messageController.deleteMessagePin)
+
 router.get('/:channelId/bookmarks', verifyToken, bookmarkController.getChannelBookmarks)
 router.post('/:channelId/bookmarks', verifyToken, bookmarkController.createChannelBookmark)
 router.delete('/:channelId/bookmarks/:bookmarkId', verifyToken, bookmarkController.deleteChannelBookmark)
