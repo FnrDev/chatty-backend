@@ -9,15 +9,21 @@ const bookmarksSchema = new mongoose.Schema({
     },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        ref: "User",
+        required: true
     },
     title: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        minLength: 1,
+        maxLength: 100
     },
     url: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        maxLength: 2048
     },
     sortOrder: {
         type: Number,
