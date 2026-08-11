@@ -5,7 +5,7 @@ let io
 function initializeSocket(httpServer) {
     io = new Server(httpServer, {
         cors: {
-            origin: '*'
+            origin:  process.env.CLIENT_URL || 'http://localhost:5173'
         }
     })
 

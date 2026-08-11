@@ -1,5 +1,16 @@
 const mongoose = require('mongoose')
 
+
+const workSpaceMessagesReaction = new mongoose.Schema({
+    author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
+    reaction: {
+        type: String,
+    }
+})
+
 const workspaceMessages = new mongoose.Schema({
     channel: {
         type: mongoose.Schema.Types.ObjectId,
@@ -36,7 +47,8 @@ const workspaceMessages = new mongoose.Schema({
     replyTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Message"
-    }
+    },
+    reactions: [workSpaceMessagesReaction]
 }, { timestamps: true })
 
 const Message = mongoose.model('Message', workspaceMessages)

@@ -43,6 +43,63 @@ async function createChannelMessage(req, res) {
     }
 }
 
+async function addReaction(req, res) {
+    try {
+        const { id } = req.params;
+
+        const updatedMessage = await Message.findOneAndUpdate(id, {
+           $push: {
+              reactions: {
+                    author: req.user._id,
+                    reaction: req.body.reaction,
+                }
+            }
+        })
+
+        if (!updatedMessage) {
+        return res.status(404).json({
+            message: "Message not found",
+        });
+        }
+
+        return res.status(200).json({
+            message: "Reaction added successfully",
+            data: updatedMessage,
+        });
+    } catch(err) {
+       return res.status(500).json({ message: "internal server error" })
+    }
+}
+
+async function removeReaction(req, res) {
+    try {
+        const foundMessage = await Message.findById(id);
+        if (!foundMessage) {
+            return res.status(404).json({ message: "Message not found" });
+        }
+        const foundReaction = foundMessage.reactions.id(reactionId);
+        if (!foundReaction) {
+            return res.status(404).json({ message: "Reaction not found" });
+        }
+        if (!foundReaction.author.equals(req.user._id)) {
+            return res.status(403).json({ message: 'You cannot edit this' });
+        }
+        const updatedMessage = await Message.findOneAndUpdate(id, {
+           $pull: {
+              reactions: {
+                    reactions: { _id: reactionId }
+                }
+            }
+        }, {new: true})
+       return res.status(200).json({
+            message: "Reaction removed successfully",
+            data: updatedMessage,
+        });
+    } catch(err) {
+       return res.status(500).json({ message: "internal server error" })
+    }
+}
+
 async function editChannelMessage(req, res) {
     try {
         const { textContent } = req.body
