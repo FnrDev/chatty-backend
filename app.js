@@ -55,4 +55,8 @@ async function startServer() {
         console.log(`App is running on port ${PORT}`);
     });
 }
-startServer();
+if (require.main === module) {
+    startServer();
+}
+
+module.exports = app;

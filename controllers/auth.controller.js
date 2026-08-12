@@ -102,8 +102,42 @@ async function verifyUser(req, res) {
   }
 }
 
+async function updateUser(req, res) {
+  try {
+    const { username, profileImage } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+      });
+    }
+
+    if (username !== undefined) user.username = username;
+    if (profileImage !== undefined) user.profileImage = profileImage;
+
+    await user.save();
+
+    return res.status(200).json(user);
+  } catch (err) {
+    console.error(err);
+
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ message: err.message });
+    }
+    if (err.code === 11000) {
+      return res.status(409).json({ message: "Username already exists" });
+    }
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+}
+
 module.exports = {
   signUp,
   signIn,
   verifyUser,
+  updateUser,
 };

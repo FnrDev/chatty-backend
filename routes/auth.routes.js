@@ -8,4 +8,6 @@ router.post("/sign-in",  authController.signIn);
 
 router.get("/me", verifyToken, authController.verifyUser);
 
+router.patch("/me", verifyToken, authController.updateUser);
+
 module.exports = router;
