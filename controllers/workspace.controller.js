@@ -141,9 +141,41 @@ async function workspaceDetails(req, res) {
     }
 }
 
+async function updateWorkspace(req, res) {
+    try {
+        const { name, imageURL } = req.body
+
+        const workspace = await Workspace.findById(req.params.id)
+
+        if (!workspace) {
+            return res.status(404).json({ message: "workspace not found" })
+        }
+
+        if (!workspace.owner.equals(req.user._id)) {
+            return res.status(403).json({ message: "only the owner can update this workspace" })
+        }
+
+        // only touch the keys the client actually sent, so a partial update
+        // cannot blank out the fields it left out
+        if (name !== undefined) workspace.name = name
+        if (imageURL !== undefined) workspace.imageURL = imageURL
+
+        await workspace.save()
+
+        return res.json(workspace)
+    } catch (error) {
+        console.log(error)
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ message: error.message })
+        }
+        return res.status(500).json({ message: error.message })
+    }
+}
+
 module.exports = {
     listWorkspace,
     createWorkspace,
     joinWorkspace,
-    workspaceDetails
+    workspaceDetails,
+    updateWorkspace
 }
