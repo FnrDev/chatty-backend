@@ -124,7 +124,11 @@ async function joinWorkspace(req, res) {
 async function workspaceDetails(req, res) {
     try {
         const workspace = await Workspace.findById(req.params.id)
-            .populate({ path: 'members', populate: { path: 'user' } })
+            .populate({
+                path: 'members',
+                match: { status: 'active' },
+                populate: { path: 'user' }
+            })
             .populate('channels')
 
         if (!workspace) {
@@ -138,6 +142,46 @@ async function workspaceDetails(req, res) {
             return res.status(400).json({ message: error.message })
         }
         return res.status(500).json({ message: error.message })
+    }
+}
+
+async function removeWorkspaceMember(req, res) {
+    try {
+        const workspace = await Workspace.findById(req.params.id)
+
+        if (!workspace) {
+            return res.status(404).json({ message: "workspace not found" })
+        }
+
+        if (!workspace.owner.equals(req.user._id)) {
+            return res.status(403).json({ message: "only the owner can remove members" })
+        }
+
+        const membership = await WorkspaceMember.findOne({
+            _id: req.params.memberId,
+            workspace: workspace._id,
+            status: 'active'
+        })
+
+        if (!membership) {
+            return res.status(404).json({ message: "member not found" })
+        }
+
+        if (membership.role === 'owner' || membership.user?.equals(workspace.owner)) {
+            return res.status(400).json({ message: "the workspace owner cannot be removed" })
+        }
+
+        membership.status = 'inactive'
+        membership.removedAt = new Date()
+        await membership.save()
+
+        return res.json({ _id: membership._id })
+    } catch (error) {
+        console.log(error)
+        if (error.name === "CastError") {
+            return res.status(404).json({ message: "member not found" })
+        }
+        return res.status(500).json({ message: "could not remove member" })
     }
 }
 
@@ -177,5 +221,6 @@ module.exports = {
     createWorkspace,
     joinWorkspace,
     workspaceDetails,
-    updateWorkspace
+    updateWorkspace,
+    removeWorkspaceMember
 }
