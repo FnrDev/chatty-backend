@@ -45,58 +45,112 @@ async function createChannelMessage(req, res) {
 
 async function addReaction(req, res) {
     try {
-        const { id } = req.params;
+        const { channelId, messageId } = req.params
+        const { reaction } = req.body
 
-        const updatedMessage = await Message.findOneAndUpdate(id, {
-           $push: {
-              reactions: {
-                    author: req.user._id,
-                    reaction: req.body.reaction,
-                }
-            }
-        })
-
-        if (!updatedMessage) {
-        return res.status(404).json({
-            message: "Message not found",
-        });
+        if (
+            !mongoose.isValidObjectId(channelId) ||
+            !mongoose.isValidObjectId(messageId)
+        ) {
+            return res.status(404).json({ message: "message not found" })
         }
 
-        return res.status(200).json({
-            message: "Reaction added successfully",
-            data: updatedMessage,
-        });
-    } catch(err) {
-       return res.status(500).json({ message: "internal server error" })
+        if (!reaction) {
+            return res.status(400).json({ message: "reaction is required" })
+        }
+
+        const updated = await Message.findOneAndUpdate(
+            {
+                _id: messageId,
+                channel: channelId,
+                deletedAt: null
+            },
+            {
+                $push: {
+                    reactions: {
+                        author: req.user._id,
+                        reaction
+                    }
+                }
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        ).populate('author')
+
+        if (!updated) {
+            return res.status(404).json({ message: "message not found" })
+        }
+
+        getIO().emit('message_reaction_added', updated)
+
+        return res.json(updated)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "internal server error" })
     }
 }
 
 async function removeReaction(req, res) {
     try {
-        const foundMessage = await Message.findById(id);
-        if (!foundMessage) {
-            return res.status(404).json({ message: "Message not found" });
+        const { channelId, messageId, reactionId } = req.params
+
+        if (
+            !mongoose.isValidObjectId(channelId) ||
+            !mongoose.isValidObjectId(messageId) ||
+            !mongoose.isValidObjectId(reactionId)
+        ) {
+            return res.status(404).json({ message: "message not found" })
         }
-        const foundReaction = foundMessage.reactions.id(reactionId);
-        if (!foundReaction) {
-            return res.status(404).json({ message: "Reaction not found" });
+
+        const message = await Message.findOne({
+            _id: messageId,
+            channel: channelId,
+            deletedAt: null
+        })
+
+        if (!message) {
+            return res.status(404).json({ message: "message not found" })
         }
-        if (!foundReaction.author.equals(req.user._id)) {
-            return res.status(403).json({ message: 'You cannot edit this' });
+
+        const reaction = message.reactions.id(reactionId)
+
+        if (!reaction) {
+            return res.status(404).json({ message: "reaction not found" })
         }
-        const updatedMessage = await Message.findOneAndUpdate(id, {
-           $pull: {
-              reactions: {
+
+        if (!reaction.author.equals(req.user._id)) {
+            return res.status(403).json({ message: "you cannot remove this reaction" })
+        }
+
+        const updated = await Message.findOneAndUpdate(
+            {
+                _id: messageId,
+                channel: channelId,
+                deletedAt: null
+            },
+            {
+                $pull: {
                     reactions: { _id: reactionId }
                 }
+            },
+            {
+                new: true,
+                runValidators: true
             }
-        }, {new: true})
-       return res.status(200).json({
-            message: "Reaction removed successfully",
-            data: updatedMessage,
-        });
-    } catch(err) {
-       return res.status(500).json({ message: "internal server error" })
+        ).populate('author')
+
+        if (!updated) {
+            return res.status(404).json({ message: "message not found" })
+        }
+
+        getIO().emit('message_reaction_removed', updated)
+
+        return res.json(updated)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "internal server error" })
     }
 }
 
@@ -275,6 +329,8 @@ module.exports = {
     createChannelMessage,
     editChannelMessage,
     deleteChannelMessage,
+    addReaction,
+    removeReaction,
     createMessagePin,
     listMessagePin,
     deleteMessagePin

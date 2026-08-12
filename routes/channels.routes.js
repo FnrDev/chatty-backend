@@ -13,6 +13,9 @@ router.post('/:channelId/messages', verifyToken, messageController.createChannel
 router.patch('/:channelId/messages/:messageId', verifyToken, messageController.editChannelMessage)
 router.delete('/:channelId/messages/:messageId', verifyToken, messageController.deleteChannelMessage)
 
+router.post('/:channelId/messages/:messageId/reactions', verifyToken, messageController.addReaction)
+router.delete('/:channelId/messages/:messageId/reactions/:reactionId', verifyToken, messageController.removeReaction)
+
 router.get('/:channelId/pins', verifyToken, messageController.listMessagePin)
 router.post('/:channelId/messages/:messageId/pin', verifyToken, messageController.createMessagePin)
 router.delete('/:channelId/messages/:messageId/pin', verifyToken, messageController.deleteMessagePin)

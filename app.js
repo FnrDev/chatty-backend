@@ -46,6 +46,7 @@ app.use('/workspaces', workspaceRoutes)
 app.use('/workspaces/:workspaceId/channels', channelsRoutes)
 app.use('/upload', uploadRoutes)
 
+
 async function startServer() {
     const PORT = process.env.PORT || 3000;
     await connectToDB();
