@@ -19,6 +19,10 @@ const workspaceChannels = new mongoose.Schema({
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
+    },
+    deletedAt: {
+        type: Date,
+        default: null
     }
 }, {
     timestamps: true,

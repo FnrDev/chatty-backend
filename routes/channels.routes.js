@@ -7,6 +7,8 @@ const bookmarkController = require('../controllers/bookmarks.controller')
 router.get('/', verifyToken, channelsController.getAllChannels)
 router.get('/:id', verifyToken, channelsController.getChannelByID)
 router.post('/', verifyToken, channelsController.createChannel)
+router.patch('/:id', verifyToken, channelsController.updateChannel)
+router.delete('/:id', verifyToken, channelsController.deleteChannel)
 
 router.get('/:channelId/messages', verifyToken, messageController.getChannelMessages)
 router.post('/:channelId/messages', verifyToken, messageController.createChannelMessage)
